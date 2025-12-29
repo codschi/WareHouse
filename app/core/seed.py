@@ -11,36 +11,58 @@ from app.models.requisition import Requisition, ReqDetail
 # --- Seed Staff ---
 INITIAL_STAFF = [
     {
-        "StaffID": 1, 
-        "stName": "System Admin", 
+        "StaffID": 1,
+        "stName": "System Admin",
         "stDept": "管理部",
         "stTitle": "Superuser",
-        "stPhone": "0800-000-000",
+        "stPhone": "0912-345-678",
         "stEmail": "admin@wms.com",
         "username": "Admin",
         "password": "0000",
         "is_manager": True
     },
     {
-        "StaffID": 2, 
-        "stName": "張倉管", 
+        "StaffID": 2,
+        "stName": "張倉管",
         "stDept": "倉庫部",
         "stTitle": "倉庫主管",
         "stPhone": "0923-456-789",
         "stEmail": "zhang@wms.com",
-        "username": "zhang",
+        "username": "Zhang",
         "password": "0000",
-        "is_manager": False
+        "is_manager": True
     },
     {
-        "StaffID": 3, 
-        "stName": "李採購", 
+        "StaffID": 3,
+        "stName": "李採購",
         "stDept": "採購部",
         "stTitle": "採購專員",
         "stPhone": "0934-567-890",
         "stEmail": "li@wms.com",
-        "username": "li",
+        "username": "Li",
         "password": "0000",
+        "is_manager": False
+    },
+    {
+        "StaffID": 4,
+        "stName": "大老闆",
+        "stDept": "管理部",
+        "stTitle": "老闆",
+        "stPhone": "0988-888-888",
+        "stEmail": "boss@company.com",
+        "username": "BOSS",
+        "password": "0000",
+        "is_manager": False
+    },
+    {
+        "StaffID": 5,
+        "stName": "王大明",
+        "stDept": "採購部",
+        "stTitle": "採購專員",
+        "stPhone": "0987-654-321",
+        "stEmail": "asdfa@sdfj.com",
+        "username": "Ming",
+        "password": "1234",
         "is_manager": False
     },
 ]
@@ -56,6 +78,7 @@ INITIAL_PRODUCTS = [
     {"ProductID": 1, "prName": "無線耳機", "prSpec": "藍牙 5.0", "prCategory": "電子產品"},
     {"ProductID": 2, "prName": "機械鍵盤", "prSpec": "青軸", "prCategory": "電腦周邊"},
     {"ProductID": 3, "prName": "電競滑鼠", "prSpec": "DPI 16000", "prCategory": "電腦周邊"},
+    {"ProductID": 4, "prName": "測試商品", "prSpec": "標準", "prCategory": "測試務"},
 ]
 
 # --- Seed Warehouse ---
