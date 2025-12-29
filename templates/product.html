@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block title %}商品管理 - 物流倉儲管理系統{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-box-open me-2"></i>商品資料管理</h2>
+    <a href="/product/add" class="btn btn-primary">
+        <i class="fas fa-plus me-1"></i> 新增商品
+    </a>
+</div>
+
+<div class="mb-3">
+    <div class="input-group">
+        <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
+        <input type="text" id="searchInput" class="form-control" placeholder="輸入關鍵字搜尋 (例如：類別、ID、商品名稱...)">
+    </div>
+</div>
+
+<div class="card shadow-sm mb-5">
+    <div class="card-body p-0">
+        <table class="table table-striped table-hover mb-0 align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th style="width: 10%">ID</th>
+                    <th style="width: 25%">商品名稱 (Name)</th>
+                    <th style="width: 15%">庫存 (Stock)</th>
+                    <th style="width: 15%">類別 (Category)</th>
+                    <th style="width: 20%">規格 (Spec)</th>
+                    <th class="text-end pe-4">操作</th>
+                </tr>
+            </thead>
+            <tbody id="myTable">
+                {% for product in products %}
+                <tr>
+                    <td>{{ product.ProductID }}</td>
+                    <td>
+                        <span class="fw-bold text-primary">{{ product.prName }}</span>
+                    </td>
+                    <td>
+                        <span class="badge bg-success fs-6 me-1">{{ product.current_stock }}</span>
+                        <button class="btn btn-sm btn-outline-info" data-id="{{ product.ProductID }}"
+                            data-name="{{ product.prName }}"
+                            onclick="showDistribution(this.dataset.id, this.dataset.name)" title="查看庫存分佈">
+                            <i class="fas fa-sitemap"></i>
+                        </button>
+                    </td>
+                    <td>
+                        <span class="badge bg-secondary">{{ product.prCategory }}</span>
+                    </td>
+                    <td>{{ product.prSpec | default('-', true) }}</td>
+
+                    <td class="text-end pe-3">
+                        <a href="/product/edit/{{ product.ProductID }}" class="btn btn-sm btn-outline-primary me-1">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <form action="/product/delete/{{ product.ProductID }}" method="POST" class="d-inline"
+                            onsubmit="return confirm('確定要刪除 {{ product.prName }} 嗎？');">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr class="no-data">
+                    <td colspan="6" class="text-center py-5 text-muted">
+                        <i class="fas fa-box-open fa-3x mb-3 opacity-50"></i>
+                        <p>目前沒有商品資料</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Stock Distribution Modal -->
+<div class="modal fade" id="distModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title"><i class="fas fa-warehouse me-2"></i>庫存分佈 - <span id="distModalTitle"></span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="distLoading" class="text-center py-3">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="mt-2 text-muted">載入中...</p>
+                </div>
+                <table class="table table-bordered d-none" id="distTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th>倉庫名稱</th>
+                            <th>庫存數量</th>
+                        </tr>
+                    </thead>
+                    <tbody id="distTableBody"></tbody>
+                </table>
+                <div id="distError" class="alert alert-warning d-none"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.getElementById("searchInput").addEventListener("keyup", function () {
+        var value = this.value.toLowerCase();
+        var rows = document.querySelectorAll("#myTable tr");
+
+        rows.forEach(function (row) {
+            if (row.classList.contains('no-data')) return;
+            var text = row.innerText.toLowerCase();
+            if (text.indexOf(value) > -1) {
+                row.style.display = "";
+            } else {
+                row.style.display = "none";
+            }
+        });
+    });
+
+    // Show Distribution Modal
+    function showDistribution(productId, productName) {
+        // Init UI
+        document.getElementById('distModalTitle').textContent = productName;
+        document.getElementById('distLoading').classList.remove('d-none');
+        document.getElementById('distTable').classList.add('d-none');
+        document.getElementById('distError').classList.add('d-none');
+
+        // Open Modal
+        var myModal = new bootstrap.Modal(document.getElementById('distModal'));
+        myModal.show();
+
+        // Fetch Data
+        // Assume API is on 8000. 
+        // In real prod, this URL should be dynamic or through proxy.
+        // For this local env, hardcode localhost:8000 is accepted convention.
+        fetch(`http://127.0.0.1:8000/api/v1/products/${productId}/distribution`)
+            .then(response => {
+                if (!response.ok) throw new Error("Network response was not ok");
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById('distLoading').classList.add('d-none');
+
+                const tbody = document.getElementById('distTableBody');
+                tbody.innerHTML = '';
+
+                if (data.length === 0) {
+                    document.getElementById('distError').textContent = "目前無庫存或無分佈資料";
+                    document.getElementById('distError').classList.remove('d-none');
+                    return;
+                }
+
+                document.getElementById('distTable').classList.remove('d-none');
+                data.forEach(item => {
+                    const row = `<tr>
+                        <td>${item.warehouse}</td>
+                        <td class="fw-bold">${item.stock}</td>
+                    </tr>`;
+                    tbody.innerHTML += row;
+                });
+            })
+            .catch(error => {
+                document.getElementById('distLoading').classList.add('d-none');
+                document.getElementById('distError').textContent = "無法取得資料：" + error.message;
+                document.getElementById('distError').classList.remove('d-none');
+            });
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}物流倉儲管理系統{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    {% block style %}{% endblock %}
+</head>
+
+<body class="bg-light">
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-boxes me-2"></i>物流倉儲管理系統
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <!-- Dashboard -->
+                    <li class="nav-item me-2">
+                        <a class="nav-link {% if request.path == '/dashboard' or request.path == '/' %}active fw-bold text-warning{% else %}text-white{% endif %}"
+                            href="/dashboard">
+                            <i class="fas fa-tachometer-alt me-1"></i>儀表板
+                        </a>
+                    </li>
+
+                    <!-- Master Data Dropdown -->
+                    <li class="nav-item dropdown me-2">
+                        <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-database me-1"></i>基本資料
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/product"><i class="fas fa-box-open me-2"></i>商品管理</a>
+                            </li>
+                            <li><a class="dropdown-item" href="/warehouse"><i class="fas fa-warehouse me-2"></i>倉庫管理</a>
+                            </li>
+                            <li><a class="dropdown-item" href="/supplier"><i class="fas fa-truck me-2"></i>供應商管理</a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <!-- Operations Dropdown -->
+                    <li class="nav-item dropdown me-2">
+                        <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-exchange-alt me-1"></i>庫存作業
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/inbound"><i
+                                        class="fas fa-file-import me-2 text-warning"></i>進貨單</a></li>
+                            <li><a class="dropdown-item" href="/requisitions"><i
+                                        class="fas fa-file-invoice-dollar me-2 text-success"></i>領料單</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-item me-2">
+                        <a class="nav-link text-info" href="/ai-agent">
+                            <i class="fas fa-robot me-1"></i>AI 助手
+                        </a>
+                    </li>
+
+                    <li class="nav-item border-start border-secondary ps-3 ms-2">
+                        <span class="text-white me-3"><i class="fas fa-user-circle me-1"></i> {{ session.get('user',
+                            'User') }}</span>
+                    </li>
+                    {% if session.get('is_manager') %}
+                    <li class="nav-item">
+                        <a href="/staff" class="btn btn-outline-warning btn-sm me-2">員工管理</a>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item">
+                        <a href="/logout" class="btn btn-outline-light btn-sm">登出</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} fade show" role="alert">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Common Modals could go here -->
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+
+</html>

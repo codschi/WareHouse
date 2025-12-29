@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}編輯員工 - 物流倉儲管理系統{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-user-edit me-2"></i>編輯員工資料</h2>
+    <a href="/staff" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-1"></i> 返回列表
+    </a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form action="/staff/edit/{{ staff.StaffID }}" method="POST">
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">員工姓名 <span class="text-danger">*</span></label>
+                    <input type="text" name="stName" class="form-control" value="{{ staff.stName }}" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">所屬部門 <span class="text-danger">*</span></label>
+                    <input type="text" name="stDept" class="form-control" value="{{ staff.stDept }}" required>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">職稱</label>
+                <input type="text" name="stTitle" class="form-control" value="{{ staff.stTitle or '' }}">
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">電話</label>
+                    <input type="text" name="stPhone" class="form-control" value="{{ staff.stPhone or '' }}">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Email</label>
+                    <input type="email" name="stEmail" class="form-control" value="{{ staff.stEmail or '' }}">
+                </div>
+            </div>
+
+            <hr class="my-4">
+            <h5 class="mb-3">登入資訊</h5>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">登入帳號 <span class="text-danger">*</span></label>
+                    <input type="text" name="username" class="form-control" value="{{ staff.username }}" required>
+                    {% if staff.username == 'Admin' %}
+                    <small class="text-muted">⚠️ Super Admin帳號</small>
+                    {% endif %}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">登入密碼 <span class="text-danger">*</span></label>
+                    <input type="password" name="password" class="form-control" value="{{ staff.password }}" required>
+                </div>
+            </div>
+
+            <div class="mb-3 form-check">
+                <input type="checkbox" name="is_manager" class="form-check-input" id="managerCheck" value="1" {% if
+                    staff.is_manager %}checked{% endif %}>
+                <label class="form-check-label" for="managerCheck">
+                    授予管理員權限 (可訪問員工管理)
+                </label>
+                {% if staff.username == 'Admin' %}
+                <small class="text-danger d-block">⚠️ 無法移除Super Admin的管理員權限</small>
+                {% endif %}
+            </div>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a href="/staff" class="btn btn-secondary me-md-2">取消</a>
+                <button type="submit" class="btn btn-primary">儲存變更</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% endblock %}

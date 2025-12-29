@@ -1,0 +1,13 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: wms_db
+    restart: always
+    environment:
+      - POSTGRES_USER=wms_user
+      - POSTGRES_PASSWORD=wms_password
+      - POSTGRES_DB=wms_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./pg_data:/var/lib/postgresql/data

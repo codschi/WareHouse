@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}供應商管理 - 物流倉儲管理系統{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-truck me-2"></i>供應商管理</h2>
+    <a href="/supplier/add" class="btn btn-primary">
+        <i class="fas fa-plus me-1"></i> 新增供應商
+    </a>
+</div>
+
+<div class="mb-3">
+    <div class="input-group">
+        <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
+        <input type="text" id="searchInput" class="form-control" placeholder="輸入關鍵字搜尋 (例如：供應商名稱、電話、地址...)">
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-striped table-hover mb-0 align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th style="width: 10%">ID</th>
+                    <th style="width: 25%">供應商名稱</th>
+                    <th style="width: 20%">電話</th>
+                    <th style="width: 30%">地址</th>
+                    <th class="text-end pe-4">操作</th>
+                </tr>
+            </thead>
+
+            <tbody id="myTable">
+                {% for s in suppliers %}
+                <tr>
+                    <td>{{ s.SupplierID }}</td>
+                    <td class="fw-bold text-primary">{{ s.suName }}</td>
+                    <td>{{ s.suPhone }}</td>
+                    <td>{{ s.suAddress }}</td>
+                    <td class="text-end pe-3">
+                        <a href="/supplier/edit/{{ s.SupplierID }}" class="btn btn-sm btn-outline-primary me-1">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <form action="/supplier/delete/{{ s.SupplierID }}" method="POST" class="d-inline"
+                            onsubmit="return confirm('確定要刪除 {{ s.suName }} 嗎？');">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr class="no-data">
+                    <td colspan="5" class="text-center py-5 text-muted">
+                        <i class="fas fa-truck fa-3x mb-3 opacity-50"></i>
+                        <p>目前沒有供應商資料</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.getElementById("searchInput").addEventListener("keyup", function () {
+        var value = this.value.toLowerCase();
+        var rows = document.querySelectorAll("#myTable tr");
+
+        rows.forEach(function (row) {
+            // 忽略沒有資料的那一行
+            if (row.classList.contains('no-data')) return;
+
+            var text = row.innerText.toLowerCase();
+
+            if (text.indexOf(value) > -1) {
+                row.style.display = "";
+            } else {
+                row.style.display = "none";
+            }
+        });
+    });
+</script>
+{% endblock %}

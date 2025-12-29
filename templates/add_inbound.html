@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新增進貨單 - 物流倉儲管理系統</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body class="bg-light">
+
+    <nav class="navbar navbar-dark bg-dark shadow-sm mb-4">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">物流倉儲管理系統</a>
+            <a href="/inbound" class="btn btn-outline-light btn-sm">返回列表</a>
+        </div>
+    </nav>
+
+    <div class="container mb-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card shadow">
+                    <div class="card-header bg-warning text-dark">
+                        <h4 class="mb-0"><i class="fas fa-file-import me-2"></i>新增進貨單 (多筆明細)</h4>
+                    </div>
+                    <div class="card-body">
+
+                        <form action="/inbound/add" method="POST" id="inboundForm">
+
+                            <h5 class="border-bottom pb-2 mb-3 text-secondary">基本資訊</h5>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">進貨日期 (Date) <span class="text-danger">*</span></label>
+                                    <input type="date" name="ioDate" class="form-control" required>
+                                </div>
+
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">供應商 (Supplier) <span class="text-danger">*</span></label>
+                                    <select name="SupplierID" class="form-select" required>
+                                        <option value="" disabled selected>請選擇供應商...</option>
+                                        {% for s in suppliers %}
+                                        <option value="{{ s.SupplierID }}">{{ s.suName }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <!-- Staff Dropdown Removed -->
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mt-4 mb-2">
+                                <h5 class="text-secondary mb-0">進貨明細</h5>
+                                <button type="button" class="btn btn-success btn-sm" onclick="addRow()">
+                                    <i class="fas fa-plus"></i> 新增商品
+                                </button>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-striped align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="width: 40%">商品 (Product) <span class="text-danger">*</span></th>
+                                            <th style="width: 20%">數量 (Qty) <span class="text-danger">*</span></th>
+                                            <th style="width: 30%">入庫倉庫 (Warehouse) <span class="text-danger">*</span>
+                                            </th>
+                                            <th style="width: 10%" class="text-center">移除</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="detailsTable">
+                                        <tr>
+                                            <td>
+                                                <select name="product_ids[]" class="form-select" required>
+                                                    <option value="" disabled selected>選擇商品...</option>
+                                                    {% for p in products %}
+                                                    <option value="{{ p.ProductID }}">{{ p.prName }} ({{ p.prSpec }})
+                                                    </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <input type="number" name="quantities[]" class="form-control" required
+                                                    min="1" value="1" placeholder="數量">
+                                            </td>
+                                            <td>
+                                                <select name="warehouse_ids[]" class="form-select" required>
+                                                    {% for w in warehouses %}
+                                                    <option value="{{ w.WarehouseID }}">{{ w.waName }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </td>
+                                            <td class="text-center">
+                                                <button type="button" class="btn btn-outline-danger btn-sm delete-btn"
+                                                    onclick="removeRow(this)" disabled>
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                                <a href="/inbound" class="btn btn-secondary me-md-2">取消</a>
+                                <button type="submit" class="btn btn-warning px-5 fw-bold">建立進貨單</button>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="productOptions" style="display:none;">
+        <option value="" disabled selected>選擇商品...</option>
+        {% for p in products %}
+        <option value="{{ p.ProductID }}">{{ p.prName }} ({{ p.prSpec }})</option>
+        {% endfor %}
+    </div>
+    <div id="warehouseOptions" style="display:none;">
+        {% for w in warehouses %}
+        <option value="{{ w.WarehouseID }}">{{ w.waName }}</option>
+        {% endfor %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 新增一列
+        function addRow() {
+            const tbody = document.getElementById('detailsTable');
+            const productOpts = document.getElementById('productOptions').innerHTML;
+            const warehouseOpts = document.getElementById('warehouseOptions').innerHTML;
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>
+                    <select name="product_ids[]" class="form-select" required>
+                        ${productOpts}
+                    </select>
+                </td>
+                <td>
+                    <input type="number" name="quantities[]" class="form-control" required min="1" value="1" placeholder="數量">
+                </td>
+                <td>
+                    <select name="warehouse_ids[]" class="form-select" required>
+                        ${warehouseOpts}
+                    </select>
+                </td>
+                <td class="text-center">
+                    <button type="button" class="btn btn-outline-danger btn-sm delete-btn" onclick="removeRow(this)">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+            updateDeleteButtons(); // 更新刪除按鈕狀態
+        }
+
+        // 移除目前這一列
+        function removeRow(btn) {
+            const row = btn.closest('tr');
+            row.remove();
+            updateDeleteButtons();
+        }
+
+        // 檢查是否只剩一列，如果是，則禁用刪除按鈕 (避免表單完全沒有內容)
+        function updateDeleteButtons() {
+            const rows = document.querySelectorAll('#detailsTable tr');
+            const buttons = document.querySelectorAll('.delete-btn');
+
+            if (rows.length === 1) {
+                buttons[0].disabled = true;
+            } else {
+                buttons.forEach(btn => btn.disabled = false);
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新增員工 - 物流倉儲管理系統</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body class="bg-light">
+
+    <nav class="navbar navbar-dark bg-dark shadow-sm mb-4">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-boxes me-2"></i>物流倉儲管理系統
+            </a>
+            <a href="/staff" class="btn btn-outline-light btn-sm">
+                <i class="fas fa-arrow-left me-1"></i> 返回列表
+            </a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0"><i class="fas fa-plus-circle me-2"></i>新增員工</h4>
+                    </div>
+                    <div class="card-body">
+
+                        <form action="/staff/add" method="POST">
+
+                            <div class="mb-3">
+                                <label class="form-label">員工姓名 (Name) <span class="text-danger">*</span></label>
+                                <input type="text" name="stName" class="form-control" required placeholder="例如：王小明">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">所屬部門 (Department) <span class="text-danger">*</span></label>
+                                <input type="text" name="stDept" class="form-control" required placeholder="例如：倉儲部、物流部">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">職稱 (Title)</label>
+                                <input type="text" name="stTitle" class="form-control" placeholder="例如：倉庫主管、採購專員">
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">電話 (Phone)</label>
+                                    <input type="text" name="stPhone" class="form-control"
+                                        placeholder="例如：0912-345-678">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" name="stEmail" class="form-control"
+                                        placeholder="例如：staff@wms.com">
+                                </div>
+                            </div>
+
+                            <hr class="my-4">
+                            <h5 class="mb-3">登入資訊</h5>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">登入帳號 (Username) <span class="text-danger">*</span></label>
+                                    <input type="text" name="username" class="form-control" required
+                                        placeholder="登入用帳號">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">登入密碼 (Password) <span class="text-danger">*</span></label>
+                                    <input type="password" name="password" class="form-control" required
+                                        placeholder="登入密碼">
+                                </div>
+                            </div>
+
+                            {% if session.get('user') == 'Admin' %}
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" name="is_manager" class="form-check-input" id="managerCheck"
+                                    value="1">
+                                <label class="form-check-label" for="managerCheck">
+                                    授予管理員權限 (可訪問員工管理)
+                                </label>
+                            </div>
+                            {% else %}
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                普通管理員無法授予管理員權限，新員工將自動設為普通員工
+                            </div>
+                            {% endif %}
+
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <a href="/staff" class="btn btn-secondary me-md-2">取消</a>
+                                <button type="submit" class="btn btn-primary">儲存資料</button>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual Environment
+.venv/
+venv/
+ENV/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Database (IMPORTANT: Do NOT upload local database)
+*.db
+*.sqlite
+*.sqlite3
+local_dev.db
+
+# Environment Variables (IMPORTANT: Contains secrets)
+.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Build artifacts
+*.egg-info/
+dist/
+build/
+
+# UV/Poetry locks (optional - some teams commit, some don't)
+# uv.lock
+# poetry.lock
+
+# Test and debug files
+test_*.py
+check_*.py
+debug_*.py
+debug_*.txt
+models.txt

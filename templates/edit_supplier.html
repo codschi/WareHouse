@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}編輯供應商 - 物流倉儲管理系統{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-truck me-2"></i>編輯供應商資料</h2>
+    <a href="/supplier" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-1"></i> 返回列表
+    </a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form action="/supplier/edit/{{ supplier.SupplierID }}" method="POST">
+            <div class="mb-3">
+                <label class="form-label">供應商名稱 <span class="text-danger">*</span></label>
+                <input type="text" name="suName" class="form-control" value="{{ supplier.suName }}" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">聯絡電話</label>
+                <input type="text" name="suPhone" class="form-control" value="{{ supplier.suPhone or '' }}">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">地址</label>
+                <textarea name="suAddress" class="form-control" rows="3">{{ supplier.suAddress or '' }}</textarea>
+            </div>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a href="/supplier" class="btn btn-secondary me-md-2">取消</a>
+                <button type="submit" class="btn btn-primary">儲存變更</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

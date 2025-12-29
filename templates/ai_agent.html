@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block title %}AI 智慧助手 - 物流倉儲管理系統{% endblock %}
+
+{% block style %}
+<style>
+    .chat-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .sql-box {
+        background-color: #f8f9fa;
+        border-left: 5px solid #0d6efd;
+        padding: 15px;
+        font-family: monospace;
+        white-space: pre-wrap;
+    }
+
+    .loading {
+        display: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5 chat-container">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0"><i class="fas fa-robot me-2"></i>AI 智慧資料庫查詢助手</h4>
+        </div>
+        <div class="card-body">
+            <p class="text-muted">請用自然語言輸入您的問題，例如：「庫存最多的商品是哪個？」、「列出所有台北的倉庫」。</p>
+
+            <div class="input-group mb-3">
+                <input type="text" id="questionInput" class="form-control form-control-lg" placeholder="在這裡輸入問題...">
+                <button class="btn btn-primary" type="button" id="askBtn">
+                    <i class="fas fa-paper-plane me-1"></i> 查詢
+                </button>
+            </div>
+
+            <!-- Loading Spinner -->
+            <div id="loading" class="text-center my-4 loading">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2 text-muted">AI 正在思考並查詢資料庫...</p>
+            </div>
+
+            <!-- Error Alert -->
+            <div id="errorAlert" class="alert alert-danger d-none" role="alert"></div>
+
+            <!-- Result Section -->
+            <div id="resultSection" class="d-none">
+                <h5 class="mt-4">生成的 SQL 指令：</h5>
+                <div class="sql-box mb-4" id="sqlOutput"></div>
+
+                <h5>查詢結果：</h5>
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered" id="resultTable">
+                        <thead class="table-dark" id="tableHead"></thead>
+                        <tbody id="tableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.getElementById("askBtn").addEventListener("click", performQuery);
+    document.getElementById("questionInput").addEventListener("keypress", function (e) {
+        if (e.key === "Enter") performQuery();
+    });
+
+    async function performQuery() {
+        const question = document.getElementById("questionInput").value.trim();
+        if (!question) return;
+
+        // UI Reset
+        document.getElementById("loading").style.display = "block";
+        document.getElementById("resultSection").classList.add("d-none");
+        document.getElementById("errorAlert").classList.add("d-none");
+        document.getElementById("askBtn").disabled = true;
+
+        try {
+            const response = await fetch("/ai-agent/ask", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ question: question })
+            });
+
+            const data = await response.json();
+
+            document.getElementById("loading").style.display = "none";
+            document.getElementById("askBtn").disabled = false;
+
+            if (data.error) {
+                showError(data.error);
+                if (data.sql) {
+                    document.getElementById("resultSection").classList.remove("d-none");
+                    document.getElementById("sqlOutput").textContent = data.sql;
+                    document.getElementById("tableHead").innerHTML = "";
+                    document.getElementById("tableBody").innerHTML = "";
+                }
+                return;
+            }
+
+            // Show Success
+            document.getElementById("resultSection").classList.remove("d-none");
+            document.getElementById("sqlOutput").textContent = data.sql || "N/A";
+
+            renderTable(data.results);
+
+        } catch (err) {
+            document.getElementById("loading").style.display = "none";
+            document.getElementById("askBtn").disabled = false;
+            showError("發生錯誤：" + err.message);
+        }
+    }
+
+    function showError(msg) {
+        const el = document.getElementById("errorAlert");
+        el.textContent = msg;
+        el.classList.remove("d-none");
+    }
+
+    function renderTable(data) {
+        const thead = document.getElementById("tableHead");
+        const tbody = document.getElementById("tableBody");
+        thead.innerHTML = "";
+        tbody.innerHTML = "";
+
+        if (!data || data.length === 0) {
+            tbody.innerHTML = "<tr><td class='text-center p-3'>查無資料</td></tr>";
+            return;
+        }
+
+        // Generate Headers
+        const headers = Object.keys(data[0]);
+        const headerRow = document.createElement("tr");
+        headers.forEach(h => {
+            const th = document.createElement("th");
+            th.textContent = h;
+            headerRow.appendChild(th);
+        });
+        thead.appendChild(headerRow);
+
+        // Generate Rows
+        data.forEach(row => {
+            const tr = document.createElement("tr");
+            headers.forEach(h => {
+                const td = document.createElement("td");
+                td.textContent = row[h];
+                tr.appendChild(td);
+            });
+            tbody.appendChild(tr);
+        });
+    }
+</script>
+{% endblock %}

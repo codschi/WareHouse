@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}儀表板 - 物流倉儲管理系統{% endblock %}
+
+{% block content %}
+<h2 class="mb-4"><i class="fas fa-tachometer-alt me-2"></i>營運儀表板</h2>
+
+<!-- 1. KPI Cards (Top Section) -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card text-white bg-primary shadow-sm h-100">
+            <div class="card-body d-flex align-items-center justify-content-between">
+                <div>
+                    <h5 class="card-title">總商品數 (SKU)</h5>
+                    <h2 class="display-4 fw-bold mb-0">{{ kpi.total_sku }}</h2>
+                </div>
+                <i class="fas fa-box fa-4x opacity-50"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card text-white bg-warning text-dark shadow-sm h-100">
+            <div class="card-body d-flex align-items-center justify-content-between">
+                <div>
+                    <h5 class="card-title">本月進貨單</h5>
+                    <h2 class="display-4 fw-bold mb-0">{{ kpi.monthly_inbound }}</h2>
+                </div>
+                <i class="fas fa-file-import fa-4x opacity-50"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card text-white bg-success shadow-sm h-100">
+            <div class="card-body d-flex align-items-center justify-content-between">
+                <div>
+                    <h5 class="card-title">本月領料單</h5>
+                    <h2 class="display-4 fw-bold mb-0">{{ kpi.monthly_req }}</h2>
+                </div>
+                <i class="fas fa-file-invoice-dollar fa-4x opacity-50"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 2. Main Content Grid (Middle: Low Stock / Bottom/Side: Recent) -->
+<!-- Requirement says 3-Column Grid Layout. 
+     Middle Section: Low Stock (Priority) -> Ideally this means center or prominent.
+     Bottom/Side: Recent Activities.
+     Let's use a layout: Left 8 (Low Stock) / Right 4 (Recent Activity) for better data density.
+-->
+<div class="row">
+    <!-- Low Stock Alerts -->
+    <div class="col-lg-8 mb-4">
+        <div class="card shadow border-danger">
+            <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>庫存不足警示 (Stock < 10)</h5>
+                        <span class="badge bg-white text-danger">{{ low_stock|length }} 項商品</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>商品名稱</th>
+                                <th>目前庫存</th>
+                                <th>存放建議</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in low_stock %}
+                            <tr>
+                                <td>{{ item.ProductID }}</td>
+                                <td class="fw-bold text-dark">{{ item.prName }}</td>
+                                <td>
+                                    <span class="badge bg-danger rounded-pill fs-6">{{ item.current_stock }}</span>
+                                </td>
+                                <td class="text-secondary small">{{ item.warehouse_hint }}</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center py-4 text-success">
+                                    <i class="fas fa-check-circle fa-2x mb-2"></i>
+                                    <p class="mb-0">庫存狀況良好，無缺貨商品</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activities -->
+    <div class="col-lg-4 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0"><i class="fas fa-history me-2"></i>近期異動紀錄</h5>
+            </div>
+            <div class="list-group list-group-flush">
+                {% for act in activities %}
+                <div class="list-group-item">
+                    <div class="d-flex w-100 justify-content-between mb-1">
+                        <small class="text-muted">{{ act.date }}</small>
+                        {% if act.type == '進貨單' %}
+                        <span class="badge bg-warning text-dark">{{ act.type }}</span>
+                        {% else %}
+                        <span class="badge bg-success">{{ act.type }}</span>
+                        {% endif %}
+                    </div>
+                    <p class="mb-1">
+                        {{ act.staff }} 處理了單號 #{{ act.id }}
+                    </p>
+                </div>
+                {% else %}
+                <div class="list-group-item text-center text-muted py-4">無近期活動</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
